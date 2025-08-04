@@ -27,4 +27,4 @@ Thumbs.db
 # Ignore test artifacts
 *.bak
 *.swp
-*.swo
+*.swo~
