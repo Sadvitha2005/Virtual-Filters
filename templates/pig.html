@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<!-- Required meta tags -->
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<title>Pig Filter page</title>
+	<!-- Bootstrap CSS -->
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"
+	integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+	<link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='styles/animal.css') }}">     
+	<style type="text/css">
+		body {
+			background-image: url('{{url_for('static', filename='photos/2.jpg')}}');
+		}
+		#capture-btn {
+			margin-top: 20px;
+		}
+		#status-message {
+			margin-top: 10px;
+			display: none;
+		}
+		.capture-options {
+			margin-top: 20px;
+			background: rgba(255, 255, 255, 0.8);
+			padding: 15px;
+			border-radius: 5px;
+			display: none;
+		}
+	</style>   
+</head>
+<body> 
+	{% include 'logo.html' %}
+	<div class="container">
+		<div class="text-center" id='imagediv'>
+			<img src="{{ url_for('video_feed_pig') }}" width="100%" class="img-fluid pull-up" id='frame'>
+		</div>
+		<div class="text-center">
+			<button id="capture-btn" class="btn btn-danger" onclick="capturePhoto()">📸 Capture Photo</button>
+			<div id="status-message" class="alert alert-info">Capturing photo...</div>
+			<div class="capture-options" id="capture-options">
+				<div class="form-group">
+					<label for="filename">File Name:</label>
+					<input type="text" class="form-control" id="filename" value="pig_photo">
+					<small class="form-text text-muted">.jpg will be added automatically</small>
+				</div>
+				<button class="btn btn-success" onclick="downloadPhoto()">💾 Save Photo</button>
+				<button class="btn btn-secondary ml-2" onclick="cancelCapture()">❌ Cancel</button>
+			</div>
+		</div>
+	</div>
+	<script>
+		let capturedImageBlob = null;
+
+		async function capturePhoto() {
+			const statusMsg = document.getElementById('status-message');
+			const captureBtn = document.getElementById('capture-btn');
+			const captureOptions = document.getElementById('capture-options');
+			
+			try {
+				statusMsg.style.display = 'block';
+				captureBtn.disabled = true;
+				
+				const response = await fetch('/capture_photo');
+				
+				if (!response.ok) {
+					throw new Error('Failed to capture photo');
+				}
+				
+				capturedImageBlob = await response.blob();
+				
+				// Show the filename input and download button
+				captureOptions.style.display = 'block';
+				statusMsg.style.display = 'none';
+				
+			} catch (error) {
+				statusMsg.textContent = 'Failed to capture photo. Please try again.';
+				statusMsg.className = 'alert alert-danger';
+				captureBtn.disabled = false;
+			}
+		}
+
+		function downloadPhoto() {
+			if (!capturedImageBlob) {
+				return;
+			}
+
+			const filename = document.getElementById('filename').value.trim() || 'pig_photo';
+			const url = window.URL.createObjectURL(capturedImageBlob);
+			const a = document.createElement('a');
+			a.href = url;
+			a.download = `${filename}.jpg`;
+			document.body.appendChild(a);
+			a.click();
+			window.URL.revokeObjectURL(url);
+			document.body.removeChild(a);
+
+			// Reset the UI
+			resetUI();
+		}
+
+		function cancelCapture() {
+			capturedImageBlob = null;
+			resetUI();
+		}
+
+		function resetUI() {
+			const statusMsg = document.getElementById('status-message');
+			const captureBtn = document.getElementById('capture-btn');
+			const captureOptions = document.getElementById('capture-options');
+			const filename = document.getElementById('filename');
+
+			statusMsg.style.display = 'none';
+			captureBtn.disabled = false;
+			captureOptions.style.display = 'none';
+			filename.value = 'pig_photo';
+		}
+	</script>
+</body>
+</html>     

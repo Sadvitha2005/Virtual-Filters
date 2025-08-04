@@ -1,0 +1,30 @@
+# Ignore Python bytecode
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Ignore virtual environments
+venv/
+env/
+.venv/
+ENV/
+pyvenv.cfg
+
+# Ignore IDE/project config files
+.idea/
+.vscode/
+*.iml
+
+# Ignore OS-generated files
+.DS_Store
+Thumbs.db
+
+# Ignore logs and temp files
+*.log
+*.tmp
+
+# Ignore test artifacts
+*.bak
+*.swp
+*.swo
